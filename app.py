@@ -2,10 +2,20 @@ import streamlit as st
 import pandas as pd
 import os
 
-st.set_page_config(
-    page_title="Inscrição para Seminário",
-    page_icon="📋",
-    layout="centered"
+st.markdown(
+    """
+# 🌱 Projetos Agropecuários
+
+## Seminário de Projetos Agropecuários (2026.1)
+
+### Universidade Federal do Ceará
+
+**Departamento de Economia Agrícola**
+
+**Prof. Rogério César Pereira de Araújo**
+
+---
+"""
 )
 
 ARQUIVO = "inscricoes.csv"
