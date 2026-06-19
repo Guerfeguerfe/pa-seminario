@@ -1,35 +1,63 @@
 import streamlit as st
+import pandas as pd
+import os
 
-st.set_page_config(
-    page_title="Seminário de Projetos Agropecuários",
-    page_icon="📚",
-    layout="centered"
+st.set_page_config(page_title="Inscrição para Seminário", page_icon="📋")
+
+ARQUIVO = "inscricoes.csv"
+
+LIMITE_POR_DIA = {
+    "23/06/2026": 5,
+    "30/06/2026": 5
+}
+
+st.title("Inscrição para Apresentação do Seminário")
+
+st.write("Escolha o dia da apresentação. Cada dia terá no máximo 5 apresentações.")
+
+nome_grupo = st.text_input("Nome do grupo")
+tema = st.text_input("Tema do seminário")
+integrantes = st.text_area("Nome dos integrantes do grupo")
+
+dia = st.selectbox(
+    "Escolha o dia da apresentação",
+    ["23/06/2026", "30/06/2026"]
 )
 
-st.title("Seminário de Projetos Agropecuários")
+if os.path.exists(ARQUIVO):
+    df = pd.read_csv(ARQUIVO, sep=";")
+else:
+    df = pd.DataFrame(columns=[
+        "Nome do grupo",
+        "Tema",
+        "Integrantes",
+        "Dia da apresentação"
+    ])
 
-st.subheader("Formulário de inscrição")
+inscricoes_dia = df[df["Dia da apresentação"] == dia]
+vagas_restantes = LIMITE_POR_DIA[dia] - len(inscricoes_dia)
 
-st.write("""
-Este sistema foi criado para organizar as inscrições dos alunos
-no seminário da disciplina de Projetos Agropecuários.
-""")
-
-nome = st.text_input("Nome completo")
-matricula = st.text_input("Matrícula")
-curso = st.text_input("Curso")
-email = st.text_input("E-mail")
-tema = st.text_area("Tema do seminário")
+st.info(f"Vagas restantes para {dia}: {vagas_restantes}")
 
 if st.button("Enviar inscrição"):
-    if nome and matricula and curso and email and tema:
-        st.success("Inscrição realizada com sucesso!")
-
-        st.write("### Dados enviados")
-        st.write(f"**Nome:** {nome}")
-        st.write(f"**Matrícula:** {matricula}")
-        st.write(f"**Curso:** {curso}")
-        st.write(f"**E-mail:** {email}")
-        st.write(f"**Tema:** {tema}")
+    if nome_grupo.strip() == "":
+        st.error("Informe o nome do grupo.")
+    elif tema.strip() == "":
+        st.error("Informe o tema do seminário.")
+    elif integrantes.strip() == "":
+        st.error("Informe os integrantes do grupo.")
+    elif vagas_restantes <= 0:
+        st.error("Este dia já atingiu o limite de 5 apresentações. Escolha outro dia.")
     else:
-        st.error("Preencha todos os campos antes de enviar.")
+        nova_inscricao = pd.DataFrame([{
+            "Nome do grupo": nome_grupo,
+            "Tema": tema,
+            "Integrantes": integrantes,
+            "Dia da apresentação": dia
+        }])
+
+        df = pd.concat([df, nova_inscricao], ignore_index=True)
+        df.to_csv(ARQUIVO, sep=";", index=False)
+
+        st.success("Inscrição realizada com sucesso!")
+        st.balloons()
