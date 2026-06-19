@@ -56,10 +56,10 @@ for dia_opcao, limite in LIMITE_POR_DIA.items():
         f"{dia_opcao}: {ocupadas} de {limite} vagas disponíveis. "
         f"Restam {restantes} vaga(s)."
     )
-    else:
-        st.error(
-            f"{dia_opcao}: {ocupadas} de {limite} vagas disponíveis. "
-            "VAGAS ESGOTADAS."
+else:
+    st.error(
+        f"{dia_opcao}: {ocupadas} de {limite} vagas disponíveis. "
+        "VAGAS ESGOTADAS."
     )
 
 dias_disponiveis = []
