@@ -15,25 +15,27 @@ LIMITE_POR_DIA = {
     "30/06/2026": 5
 }
 
+COLUNAS = [
+    "Nome",
+    "Matrícula",
+    "E-mail",
+    "Nome do grupo",
+    "Tema",
+    "Integrantes",
+    "Dia da apresentação"
+]
+
 st.title("Inscrição para Apresentação do Seminário")
 
-st.write(
-    "Escolha o dia da apresentação. Cada dia terá no máximo "
-    "5 apresentações, totalizando 10 apresentações."
-)
-
-# Criar ou carregar arquivo de inscrições
 if os.path.exists(ARQUIVO):
-    df = pd.read_csv(ARQUIVO, sep=";")
+    df = pd.read_csv(ARQUIVO, sep=";", dtype=str)
 else:
-    df = pd.DataFrame(columns=[
-        "Nome do grupo",
-        "Tema",
-        "Integrantes",
-        "Dia da apresentação"
-    ])
+    df = pd.DataFrame(columns=COLUNAS)
 
-# Painel de vagas
+for coluna in COLUNAS:
+    if coluna not in df.columns:
+        df[coluna] = ""
+
 st.subheader("Vagas disponíveis")
 
 for dia_opcao, limite in LIMITE_POR_DIA.items():
@@ -51,7 +53,6 @@ for dia_opcao, limite in LIMITE_POR_DIA.items():
             "VAGAS ESGOTADAS."
         )
 
-# Mostrar apenas dias com vagas disponíveis
 dias_disponiveis = []
 
 for dia_opcao, limite in LIMITE_POR_DIA.items():
@@ -66,6 +67,9 @@ st.subheader("Formulário de inscrição")
 if len(dias_disponiveis) == 0:
     st.error("Todas as vagas foram preenchidas.")
 else:
+    nome = st.text_input("Nome do participante responsável")
+    matricula = st.text_input("Matrícula")
+    email = st.text_input("E-mail institucional")
     nome_grupo = st.text_input("Nome do grupo")
     tema = st.text_input("Tema do seminário")
     integrantes = st.text_area("Nome dos integrantes do grupo")
@@ -81,19 +85,38 @@ else:
     st.info(f"Vagas restantes para {dia}: {vagas_restantes}")
 
     if st.button("Enviar inscrição"):
-        if nome_grupo.strip() == "":
+        matricula_limpa = matricula.strip()
+        email_limpo = email.strip().lower()
+
+        matriculas_existentes = df["Matrícula"].fillna("").astype(str).str.strip()
+        emails_existentes = df["E-mail"].fillna("").astype(str).str.strip().str.lower()
+
+        if nome.strip() == "":
+            st.error("Informe o nome do participante responsável.")
+        elif matricula_limpa == "":
+            st.error("Informe a matrícula.")
+        elif email_limpo == "":
+            st.error("Informe o e-mail institucional.")
+        elif nome_grupo.strip() == "":
             st.error("Informe o nome do grupo.")
         elif tema.strip() == "":
             st.error("Informe o tema do seminário.")
         elif integrantes.strip() == "":
             st.error("Informe os integrantes do grupo.")
+        elif matricula_limpa in matriculas_existentes.values:
+            st.error("Esta matrícula já possui inscrição registrada.")
+        elif email_limpo in emails_existentes.values:
+            st.error("Este e-mail já possui inscrição registrada.")
         elif vagas_restantes <= 0:
             st.error("Este dia já atingiu o limite de 5 apresentações.")
         else:
             nova_inscricao = pd.DataFrame([{
-                "Nome do grupo": nome_grupo,
-                "Tema": tema,
-                "Integrantes": integrantes,
+                "Nome": nome.strip(),
+                "Matrícula": matricula_limpa,
+                "E-mail": email_limpo,
+                "Nome do grupo": nome_grupo.strip(),
+                "Tema": tema.strip(),
+                "Integrantes": integrantes.strip(),
                 "Dia da apresentação": dia
             }])
 
@@ -122,8 +145,13 @@ else:
             tabela = inscritos_dia[[
                 "Nome do grupo",
                 "Tema",
-                "Integrantes"
+                "Nome",
+                "Matrícula",
+                "E-mail"
             ]].reset_index(drop=True)
+
+            tabela.index = tabela.index + 1
+            st.dataframe(tabela, use_container_width=True)
 
             tabela.index = tabela.index + 1
             st.dataframe(tabela, use_container_width=True)
