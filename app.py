@@ -2,20 +2,10 @@ import streamlit as st
 import pandas as pd
 import os
 
-st.markdown(
-    """
-# 🌱 Projetos Agropecuários
-
-## Seminário de Projetos Agropecuários (2026.1)
-
-### Universidade Federal do Ceará
-
-**Departamento de Economia Agrícola**
-
-**Prof. Rogério César Pereira de Araújo**
-
----
-"""
+st.set_page_config(
+    page_title="Seminário de Projetos Agropecuários",
+    page_icon="🌱",
+    layout="centered"
 )
 
 ARQUIVO = "inscricoes.csv"
@@ -35,7 +25,21 @@ COLUNAS = [
     "Dia da apresentação"
 ]
 
-st.title("Inscrição para Apresentação do Seminário")
+st.markdown(
+    """
+# 🌱 Projetos Agropecuários
+
+## Seminário de Projetos Agropecuários (2026.1)
+
+### Universidade Federal do Ceará
+
+**Departamento de Economia Agrícola**
+
+**Prof. Rogério César Pereira de Araújo**
+
+---
+"""
+)
 
 if os.path.exists(ARQUIVO):
     df = pd.read_csv(ARQUIVO, sep=";", dtype=str)
@@ -52,15 +56,15 @@ for dia_opcao, limite in LIMITE_POR_DIA.items():
     ocupadas = len(df[df["Dia da apresentação"] == dia_opcao])
     restantes = limite - ocupadas
 
-    st.success(
-        f"{dia_opcao}: {ocupadas} de {limite} vagas disponíveis. "
-        f"Restam {restantes} vaga(s)."
-    )
-else:
-    st.error(
-        f"{dia_opcao}: {ocupadas} de {limite} vagas disponíveis. "
-        "VAGAS ESGOTADAS."
-    )
+    if restantes > 0:
+        st.success(
+            f"{dia_opcao}: {ocupadas} de {limite} vagas preenchidas. "
+            f"Restam {restantes} vaga(s)."
+        )
+    else:
+        st.error(
+            f"{dia_opcao}: vagas esgotadas."
+        )
 
 dias_disponiveis = []
 
