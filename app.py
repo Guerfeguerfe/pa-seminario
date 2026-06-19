@@ -52,16 +52,15 @@ for dia_opcao, limite in LIMITE_POR_DIA.items():
     ocupadas = len(df[df["Dia da apresentação"] == dia_opcao])
     restantes = limite - ocupadas
 
-    if restantes > 0:
-        st.success(
-            f"{dia_opcao}: {ocupadas} de {limite} vagas ocupadas. "
-            f"Restam {restantes} vaga(s)."
-        )
+    st.success(
+        f"{dia_opcao}: {ocupadas} de {limite} vagas disponíveis. "
+        f"Restam {restantes} vaga(s)."
+    )
     else:
         st.error(
-            f"{dia_opcao}: {ocupadas} de {limite} vagas ocupadas. "
+            f"{dia_opcao}: {ocupadas} de {limite} vagas disponíveis. "
             "VAGAS ESGOTADAS."
-        )
+    )
 
 dias_disponiveis = []
 
